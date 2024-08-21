@@ -13,4 +13,5 @@ class Post extends Model
     protected $fillable = ['title','description'];
     // or
     // protected $guarded = [];
+    protected $hidden = ['created_at','updated_at'];
 }

@@ -4,7 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-
+use App\Models\Post;
 class PostController extends Controller
 {
     /**
@@ -12,7 +12,10 @@ class PostController extends Controller
      */
     public function index()
     {
-        //
+        
+        return response()->json(Post::all(),200);
+
+        //route=>http://127.0.0.1:8000/api/posts
     }
 
     /**
@@ -20,7 +23,12 @@ class PostController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $post = Post::create([
+            'title' => $request->title,
+            'description' => $request->description
+        ]);
+
+        return response()->json([$post, 'msg' => 'Data created successfully'],200);
     }
 
     /**
@@ -28,7 +36,11 @@ class PostController extends Controller
      */
     public function show(string $id)
     {
-        //
+        $post = Post::find($id);
+
+        return response()->json($post,200);
+
+        //route => http://127.0.0.1:8000/api/posts/id
     }
 
     /**
@@ -36,7 +48,14 @@ class PostController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        //
+        $post = Post::findOrFail($id);
+
+        $post->update([
+            'title' => $request->title,
+            'description' => $request->description
+        ]);
+
+        return response()->json(['msg' => 'Update success'], 200);
     }
 
     /**
@@ -44,6 +63,10 @@ class PostController extends Controller
      */
     public function destroy(string $id)
     {
-        //
+        $post = Post::findOrFail($id);
+
+        $post->delete();
+
+        return response()->json(['msg' => 'Delete success'], 200);
     }
 }
