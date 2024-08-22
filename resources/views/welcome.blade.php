@@ -44,7 +44,7 @@
                     </div>
                     <div class="form-group mb-3">
                         <h6>Description</h6>
-                        <textarea name="description" id="" class="form-control"></textarea>
+                        <textarea name="description" id="" class="form-control" ></textarea>
                     </div>
                     <button class="btn btn-primary" type="submit">Create</button>
                 </form>
@@ -58,10 +58,8 @@
     <script src="https://cdn.jsdelivr.net/npm/axios@1.6.7/dist/axios.min.js"></script>
     <script>
         //read 
-        axios({
-            method: 'get',
-            url: '/api/posts'
-        }).then(response => {
+        axios.get('/api/posts'
+        ).then(response => {
                 let result = document.getElementById('result');
                 result.innerHTML = response.data.map(item => `
                     <tr>
@@ -111,6 +109,8 @@
                     error => console.log(error.response)
                 )
         }
+
+
     </script>
 </body>
 
