@@ -30,17 +30,21 @@ class PostController extends Controller
         ];
 
         $validator = Validator::make($request->all(), [
+
             'title' => 'required',
             'description' => 'required',
-        ]);
+
+        ],$messages);
 
         if($validator->fails()) {
-            return response()->json(['msg' => 'fails'],500);
+
+            return response()->json(['msg' => $validator->errors()],500);
+
         } else {
             
-        $post = Post::create([
-            'title' => $request->title,
-            'description' => $request->description
+            $post = Post::create([
+                'title' => $request->title,
+                'description' => $request->description
         ]);
 
             return response()->json([$post, 'msg' => 'Data created successfully'],200);
