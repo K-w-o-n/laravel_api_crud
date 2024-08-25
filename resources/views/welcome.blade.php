@@ -67,7 +67,7 @@
                 <form name="createForm">
                     <h3>Create Post</h3>
 
-                    <div id="alertMsg"></div>
+                    <div id="successMsg"></div>
                     <div class="form-group mb-3">
                         <h6>Title</h6>
                         <input type="text" name="title" class="form-control">
@@ -95,26 +95,14 @@
     <script>
         //read 
         let result = document.getElementById('result');
+        let titleList = document.getElementsByClassName('titleList');
+        let descList =document.getElementsByClassName('descList');
+        let btnList =document.getElementsByClassName('btnList');
+        let idList =document.getElementsByClassName('idList');
+
         axios.get('/api/posts').then(response => {
-
-                result.innerHTML = response.data.map(item => `
-                    <tr>
-                        <td>${item.id}</td>
-                        <td>${item.title}</td>
-                        <td>${item.description}</td>
-                        <td>
-                           <div class="btn-group">
-                               <button type="button" class="btn btn-success"  data-bs-toggle="modal" data-bs-target="#exampleModal" onclick="editBtn(${item.id})">
-                               Edit
-                                                    </button>
-                                <button class="btn btn-danger btn-sm" onclick="deleteBtn(${item.id})">Dlete</button>
-                           </div> 
-                        </td>
-                    </tr>
-    `).join('');
-            }
-
-
+            response.data.map(item => displayData(item)).join(''); }
+            
         ).catch(error => {
 
             // console.log(error.response.status);
@@ -140,32 +128,15 @@
                 .then(response => {
 
                     let item = response.data[0];
-                    result.innerHTML += `<tr>
-                        <td>${item.id}</td>
-                        <td>${item.title}</td>
-                        <td>${item.description}</td>
-                        <td>
-                           <div class="btn-group">
-                               <button type="button" class="btn btn-success"  data-bs-toggle="modal" data-bs-target="#exampleModal" onclick="editBtn(${item.id})">
-                               Edit
-                                                    </button>
-                                <button class="btn btn-danger btn-sm" onclick="deleteBtn(${item.id})">Dlete</button>
-                           </div> 
-                        </td>
-                    </tr>`.join('');
                     console.log(item);
-                    document.getElementById('alertMsg').innerHTML =
-                        `<div class="alert alert-success alert-dismissible fade show" role="alert"><strong>${response.data.msg}</strong> .<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button></div>`;
+                    alertMsg(response.data.msg);
                     createForm.reset();
-
-
+                    displayData(item);
+                    
                 })
                 .catch(error => {
-
                         // console.log(error.response.data.msg.title);
                         // console.log(error.response.data.msg.description);
-
-
                         if (titleInput.value == "") {
                             document.getElementById('titleError').innerHTML = '<i>' + error.response.data.msg.title +
                                 '</i>';
@@ -179,11 +150,7 @@
                         } else {
                             document.getElementById('descError').innerHTML = '';
                         }
-
-
                     }
-
-
                 )
         }
 
@@ -192,6 +159,7 @@
         let editTitle = editForm['title'];
         let editDesc = editForm['description'];
         let postIdToUpdate;
+        let oldTitle;
 
         function editBtn(postId) {
             postIdToUpdate = postId;
@@ -199,9 +167,10 @@
                 .then(response => {
                     editTitle.value = response.data.title;
                     editDesc.value = response.data.description;
+                    oldTitle = response.data.title;
                 })
                 .catch(error => {
-                    cosole.log(error)
+                    console.log(error)
                 })
         }
 
@@ -213,10 +182,14 @@
                     description: editDesc.value,
                 })
                 .then(response => {
-                    console.log(response);
-                    document.getElementById('successMsg').innerHTML = `<div class="alert alert-warning alert-dismissible fade show d-flex" role="alert">${response.data.msg}<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="false">&times;</span>
-                                                                  </button>
-                                                                  </div>`;
+                    for (let i = 0; i < titleList.length; i++) {
+                        if(titleList[i].innerHTML == oldTitle) {
+                            titleList[i].innerHTML = editTitle.value;
+                            descList[i].innerHTML = editDesc.value;
+                        }   
+                    }
+                    console.log(response.data.msg);
+                    alertMsg(response.data.msg);
                     $('#editModal').modal('hide');
                 })
                 .catch(error => {
@@ -232,19 +205,49 @@
             axios.delete(`api/posts/${postId}`)
                 .then(response => {
                     console.log(response.data.msg);
-                    document.getElementById('successMsg').innerHTML = `<div class="alert alert-warning alert-dismissible fade show d-flex" role="alert">${response.data.msg}
-                    <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="false">&times;</span></button></div>`
+                    for (let i = 0; i < titleList.length; i++) {
+                        if(titleList[i].innerHTML == response.data.deletedPost.title) {
+                            titleList[i].style.display = 'none';
+                            descList[i].style.display = 'none';
+                            idList[i].style.display = 'none';
+                            btnList[i].style.display = 'none';
+                        }   
+                    }
+                    alertMsg(response.data.msg);
+                    
                 })
                 .catch(error => {
                     console.log(error)
                 })
         }
+
+
+        // obey dry principle for display error
+        
+        function displayData(data) {
+
+             result.innerHTML +=`<tr>
+                        <td class='idList'>${data.id}</td>
+                        <td class='titleList'>${data.title}</td>
+                        <td class='descList'>${data.description}</td>
+                        <td class='btnList'>
+                           <div class="btn-group">
+                               <button type="button" class="btn btn-success"  data-bs-toggle="modal" data-bs-target="#exampleModal" onclick="editBtn(${data.id})">
+                               Edit
+                                                    </button>
+                                <button class="btn btn-danger btn-sm" onclick="deleteBtn(${data.id})">Dlete</button>
+                           </div> 
+                        </td>
+                    </tr>`;
+        }
+
+        //for alert msg
+
+        function alertMsg(msg) {
+            document.getElementById('successMsg').innerHTML = `<div class="alert alert-success alert-dismissible fade show d-flex" role="alert">${msg}
+                    <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="false">&times;</span></button></div>`
+        }
     </script>
-
-
-
-
-
 
 </body>
 
