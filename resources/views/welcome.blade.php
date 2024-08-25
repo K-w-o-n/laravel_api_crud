@@ -105,8 +105,6 @@
             
         ).catch(error => {
 
-            // console.log(error.response.status);
-
             if (error.response.status == 404) {
                 console.log(error.response.config.url + " url is not found");
             }
@@ -130,21 +128,22 @@
                     let item = response.data[0];
                     console.log(item);
                     alertMsg(response.data.msg);
-                    createForm.reset();
                     displayData(item);
+                    createForm.reset();
+                    
                     
                 })
                 .catch(error => {
-                        // console.log(error.response.data.msg.title);
-                        // console.log(error.response.data.msg.description);
-                        if (titleInput.value == "") {
-                            document.getElementById('titleError').innerHTML = '<i>' + error.response.data.msg.title +
-                                '</i>';
+                        
+                       
+                        if(titleInput.value == "") {
+                            document.getElementById('titleError').innerHTML = '<i>' + error.response.data.msg
+                                .title + '</i>';;
                         } else {
                             document.getElementById('titleError').innerHTML = '';
                         }
 
-                        if (descInput.value == "") {
+                        if(descInput.value == "") {
                             document.getElementById('descError').innerHTML = '<i>' + error.response.data.msg
                                 .description + '</i>';
                         } else {
@@ -176,7 +175,6 @@
 
         editform.onsubmit = (e) => {
             e.preventDefault();
-            // console.log(postIdToUpdate);
             axios.put(`api/posts/${postIdToUpdate}`, {
                     title: editTitle.value,
                     description: editDesc.value,
@@ -201,8 +199,8 @@
         //delete
 
         function deleteBtn(postId) {
-
-            axios.delete(`api/posts/${postId}`)
+            if(confirm('Are you sure ?')) {
+                axios.delete(`api/posts/${postId}`)
                 .then(response => {
                     console.log(response.data.msg);
                     for (let i = 0; i < titleList.length; i++) {
@@ -211,6 +209,7 @@
                             descList[i].style.display = 'none';
                             idList[i].style.display = 'none';
                             btnList[i].style.display = 'none';
+                            
                         }   
                     }
                     alertMsg(response.data.msg);
@@ -219,6 +218,8 @@
                 .catch(error => {
                     console.log(error)
                 })
+            }
+            
         }
 
 
@@ -226,7 +227,7 @@
         
         function displayData(data) {
 
-             result.innerHTML +=`<tr>
+             result.innerHTML +=`<tr id='mainTag'>
                         <td class='idList'>${data.id}</td>
                         <td class='titleList'>${data.title}</td>
                         <td class='descList'>${data.description}</td>
